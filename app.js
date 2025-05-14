@@ -14,6 +14,19 @@ function initMap(pos) {
     center,
   });
 
+  // Restore markers from saved car spots
+  carSpots.forEach(spot => {
+    const marker = new google.maps.Marker({
+      position: { lat: spot.lat, lng: spot.lng },
+      map,
+      title: spot.label || "Car Spot"
+    });
+
+    // Optionally show last added car info (the most recent spot)
+    document.getElementById("car-info").innerHTML = `<p><strong>${spot.label}</strong></p><img src="${spot.img}" width="200">`;
+  });
+}
+
   carSpots.forEach(spot => {
     const marker = new google.maps.Marker({
       position: { lat: spot.lat, lng: spot.lng },
