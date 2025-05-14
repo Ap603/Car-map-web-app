@@ -59,8 +59,46 @@ function handleImageUpload(file) {
 
   const reader = new FileReader();
   reader.onloadend = () => {
-    tempImageData = reader.result; // Store image temporarily
-    document.getElementById("car-info").innerHTML = `<p><strong>Preview:</strong></p><img src="${tempImageData}" width="200">`;
+    const imageDataURL = reader.result;
+    const brand = brandSelect.value;
+    const model = modelSelect.value;
+
+    if (!brand) {
+      alert("Please select a brand.");
+      return;
+    }
+    if (!model) {
+      alert("Please select a model.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(pos => {
+      const spot = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        label: `${brand} ${model}`,
+        img: imageDataURL,
+      };
+
+      // Add the new spot to the array
+      carSpots.push(spot);
+
+      // Save to localStorage
+      localStorage.setItem("carSpots", JSON.stringify(carSpots));
+
+      // Add marker on the map
+      new google.maps.Marker({
+        position: { lat: spot.lat, lng: spot.lng },
+        map,
+        title: spot.label
+      });
+
+      // Display info
+      document.getElementById("car-info").innerHTML = `
+        <p><strong>${spot.label}</strong></p>
+        <img src="${imageDataURL}" width="200">
+      `;
+    });
   };
   reader.readAsDataURL(file);
 }
