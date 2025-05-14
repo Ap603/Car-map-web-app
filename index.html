@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Car Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDinysyt5aEZdqABoy3QU3yZkMxl9BB4Kg"></script>
+</head>
+<body>
+  <h1>My Car Map</h1>
+  <div id="map"></div>
+
+  <div class="controls">
+    <input type="text" id="carMake" placeholder="Enter car make">
+    <input type="text" id="carModel" placeholder="Enter car model">
+    <br>
+    <button onclick="openCamera()">Open Camera</button>
+    <button onclick="openGallery()">Open Gallery</button>
+    <input type="file" accept="image/*" capture="environment" id="cameraInput" style="display:none;">
+    <input type="file" accept="image/*" id="galleryInput" style="display:none;">
+    <br>
+    <button onclick="addCarSpot()">Add Car Spot</button>
+  </div>
+
+  <div id="car-info"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
