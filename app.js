@@ -1,5 +1,6 @@
 let map;
 let carSpots = JSON.parse(localStorage.getItem("carSpots") || "[]");
+let tempImageData = null; // Temporarily store uploaded image
 
 const brandInput = document.getElementById("brandInput");
 const modelInput = document.getElementById("modelInput");
@@ -45,45 +46,8 @@ function handleImageUpload(file) {
 
   const reader = new FileReader();
   reader.onloadend = () => {
-    const imageDataURL = reader.result;
-    const brand = brandInput.value.trim();
-    const model = modelInput.value.trim();
-
-    if (!brand) {
-      alert("Please enter a brand.");
-      return;
-    }
-    if (!model) {
-      alert("Please enter a model.");
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(pos => {
-      const spot = {
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-        label: `${brand} ${model}`,
-        img: imageDataURL,
-      };
-      carSpots.push(spot);
-      localStorage.setItem("carSpots", JSON.stringify(carSpots));
-
-      const marker = new google.maps.Marker({
-        position: { lat: spot.lat, lng: spot.lng },
-        map,
-        title: spot.label
-      });
-
-      const infoWindow = new google.maps.InfoWindow({
-        content: `<p><strong>${spot.label}</strong></p><img src="${spot.img}" width="200">`
-      });
-
-      marker.addListener("click", () => {
-        infoWindow.open(map, marker);
-      });
-
-      document.getElementById("car-info").innerHTML = `<p><strong>${spot.label}</strong></p><img src="${imageDataURL}" width="200">`;
-    });
+    tempImageData = reader.result; // Store image temporarily
+    document.getElementById("car-info").innerHTML = `<p><strong>Preview:</strong></p><img src="${tempImageData}" width="200">`;
   };
   reader.readAsDataURL(file);
 }
@@ -97,5 +61,47 @@ galleryInput.addEventListener("change", () => {
 });
 
 function addCarSpot() {
-  alert("Please use the 'Open Camera' or 'Open Gallery' buttons to select an image.");
+  const brand = brandInput.value.trim();
+  const model = modelInput.value.trim();
+
+  if (!brand || !model) {
+    alert("Please enter both brand and model.");
+    return;
+  }
+
+  if (!tempImageData) {
+    alert("Please choose an image first.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(pos => {
+    const spot = {
+      lat: pos.coords.latitude,
+      lng: pos.coords.longitude,
+      label: `${brand} ${model}`,
+      img: tempImageData,
+    };
+
+    carSpots.push(spot);
+    localStorage.setItem("carSpots", JSON.stringify(carSpots));
+
+    const marker = new google.maps.Marker({
+      position: { lat: spot.lat, lng: spot.lng },
+      map,
+      title: spot.label
+    });
+
+    const infoWindow = new google.maps.InfoWindow({
+      content: `<p><strong>${spot.label}</strong></p><img src="${spot.img}" width="200">`
+    });
+
+    marker.addListener("click", () => {
+      infoWindow.open(map, marker);
+    });
+
+    document.getElementById("car-info").innerHTML = `<p><strong>${spot.label}</strong></p><img src="${spot.img}" width="200">`;
+
+    // Clear temporary image after saving
+    tempImageData = null;
+  });
 }
